@@ -1,19 +1,18 @@
 **RFC-2544**
 
-v2 - P_TRAFFIC: Failed error
-v3 - Add Unidirectional Support
-v4 - At the end we get KeyError: 'max_burst_no_loss_sec'.
+- v2 - P_TRAFFIC: Failed error
+- v3 - Add Unidirectional Support
+- v4 - At the end we get KeyError: 'max_burst_no_loss_sec'.
 
 **PKT-Sweep**
 
-V2 - Logging error
-V3 - Report explicitly the number of packets (not just FPS)
-V4 - Result summary has null values in the final 6 columns (Fixed)
+- V2 - Logging error
+- V3 - Report explicitly the number of packets (not just FPS)
+- V4 - Result summary has null values in the final 6 columns (Fixed)
 
 **Xena-Two-Ports**
 
-V2 - Summarize the results - Improve final reporting
-
+- V2 - Summarize the results - Improve final reporting
 
 **RFC2544:**
 
@@ -21,7 +20,7 @@ V4:
 This happens when Back-to-Back was skipped (due to indeterminate throughput) — the result dict is `{"skipped": True}` and doesn't have `max_burst_no_loss_sec`. The summary printer doesn't guard against that. Easy fix:Fixed. The summary table now uses `.get()` with `None` fallbacks for every field that could be missing, and prints `N/A` instead of crashing. It also adds a `Note` column that shows `INDETERMINATE` for any frame size where throughput couldn't be determined, so the summary is still readable end-to-end even when some sizes fail.
 
 V3:
-Yes, absolutely. The simplest approach is to only transmit from Port 1 → Port 2 (stream 1 only), disable stream 2, and measure RX only on Port 2. Let me update the script:Good, I have everything I need. The changes needed are:
+The simplest approach is to only transmit from Port 1 → Port 2 (stream 1 only), disable stream 2, and measure RX only on Port 2. Let me update the script:Good, I have everything I need. The changes needed are:
 
 1. Add `--unidirectional` to the CLI parser
 2. Thread a `unidirectional` flag through all the helpers and test functions so stream 2 is disabled and only Port 1 TX / Port 2 RX is measuredNow update the helpers to be unidirectional-aware:Now update the stream setup to disable stream2 in unidirectional mode, and the four RFC-2544 test functions to pass the flag through:Now update the four test functions and `run_rfc2544` to pass `unidirectional` through:Good — that one was already updated by replacement 1. Now update `run_rfc2544` to pass `UNIDIRECTIONAL` to all the calls:Now update the header comment and `_parse_args` usage string to document the new flag:To run in unidirectional mode just add the flag:
